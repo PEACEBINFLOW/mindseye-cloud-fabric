@@ -1,0 +1,25 @@
+pipeline: sql_to_analytics
+description: |
+  Run MindsEye SQL views and ship results into Analytics / Devlog / Dashboard.
+
+steps:
+  - name: daily_user_pattern_view
+    schedule: "0 2 * * *" # 2am UTC
+    sql:
+      repo: mindseye-sql-core
+      file: examples/03_pattern_scan.sql
+    target:
+      backend: bigquery
+      table: mindseye.analytics.user_patterns
+
+  - name: update_dashboard_materialized_view
+    sql:
+      inline: |
+        SELECT
+          user_id,
+          COUNT(*) AS events_5m
+        FROM events
+        TIMELINE BETWEEN T-5m AND NOW
+        ROUTE bigquery;
+    destination:
+      dashboard_service: mindseye-dashboard-api
