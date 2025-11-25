@@ -1,0 +1,27 @@
+pipeline: agent_feedback_loop
+description: |
+  Use MindsEye SQL outputs to tune agents and automations.
+
+steps:
+  - name: collect_agent_outcomes
+    sql:
+      inline: |
+        SELECT
+          agent_id,
+          COUNT(*) AS invocations,
+          AVG(success_score) AS avg_success
+        FROM agent_logs
+        TIMELINE BETWEEN T-24h AND NOW
+        ROUTE bigquery;
+    save_as: agent_metrics
+
+  - name: push_to_moving_library
+    handler: mindseye-moving-library
+    input: agent_metrics
+    notes: |
+      Store patterns of "good" vs "bad" agent runs, time-labeled.
+
+  - name: update_agent_configs
+    handler: mindseye-automations
+    strategy: "law-t-aware-tuning"
+    source: moving_library
