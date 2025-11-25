@@ -1,0 +1,29 @@
+# Pseudo-config: how raw events move into MindsEye SQL
+
+pipeline: ingest_to_sql
+description: |
+  Chrome / Android / agents → LAW-N → splitter → MindsEye SQL.
+
+steps:
+  - name: receive_law_n_packets
+    source:
+      - chrome_agent_shell
+      - android_lawt_runtime
+      - iot_devices
+    handler: minds_eye_law_n_network
+
+  - name: split_events
+    handler: minds_eye_data_splitter
+    outputs:
+      - events_stream
+      - metrics_stream
+      - traces_stream
+
+  - name: write_raw_to_gcs
+    backend: gcs
+    bucket: mindseye-raw-events
+
+  - name: register_in_sql
+    handler: mindseye-sql-core
+    sql:
+      - "CREATE OR REPLACE TABLE events AS SELECT * FROM gcs('mindseye-raw-events');"
