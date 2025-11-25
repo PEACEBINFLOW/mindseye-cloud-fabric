@@ -1,0 +1,23 @@
+# Event Flow
+
+```txt
+[ Chrome Extension ]
+      |
+      |  (LAW-N packet)
+      v
+[ mindseye-law-n-network ]
+      |
+      |  (normalized event)
+      v
+[ mindseye-data-splitter ]
+      |
+      |  events, metrics, traces
+      v
+[ mindseye-sql-core ]
+      |
+      |  queries / plans
+      v
+[ BigQuery / Cloud SQL / Firestore / GCS ]
+      |
+      v
+[ Analytics / Devlog / Ledger / Dashboard ]
