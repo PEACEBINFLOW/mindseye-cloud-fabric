@@ -1,0 +1,22 @@
+# SQL Flow
+
+```txt
+           +----------------------------+
+           |    MindsEye SQL Clients    |
+           |----------------------------|
+           |  - Agents                  |
+           |  - Automations             |
+           |  - CLI / Dev Tools         |
+           +-------------+--------------+
+                         |
+                         v
+              +-------------------+
+              | mindseye-sql-core |
+              +-------------------+
+            tokenizer / parser / planner
+                         |
+                         v
+         +--------+------+------+--------+
+         |        |      |      |        |
+         v        v      v      v        v
+     BigQuery  CloudSQL Firestore  GCS  (Future backends)
